@@ -2,6 +2,22 @@
   text-align: center;
 }
 
+.restaurant-root {
+  width: 100vw;
+  height: 100vh;
+  background: #dfe4ea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.restaurant-box {
+  width: 70%;
+  height: 70%;
+  background: #fff;
+  border-radius: 10px;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
