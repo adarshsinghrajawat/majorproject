@@ -10,6 +10,7 @@ import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import UploadFileIcon from '@mui/icons-material/UploadFile'; 
 import Avatar from '@mui/material/Avatar';
+import Swal from 'sweetalert2'
 
 
 export default function RestaurantInterface() {
@@ -54,6 +55,7 @@ export default function RestaurantInterface() {
   const [fileShopAct,setFileShopAct]=useState('');
   const [fileLogo,setFileLogo]=useState('');  
   const [address,setAddress]=useState('');
+  const [resError,setResError]=useState({...resError,restaurantname:{error:false,message:''},ownername:{error:false,message:''}})
 
 
 
@@ -61,6 +63,17 @@ export default function RestaurantInterface() {
     var result=await getData('statecity/fetch_all_states');
     console.log(result.data)
     setStates(result.data)
+  }
+
+
+  function validation(){
+    var submitRecord=true;
+    if(restaurantName.trim().length==0)
+    {
+      setResError({...resError,restaurantname:{error:true,message:'Please Enter Restaurant Name'}})
+      submitRecord=false;
+    }
+    return submitRecord;
   }
 
 
@@ -106,6 +119,8 @@ const handleLogo=(event)=>{
 
 
   const handleSubmit=async()=>{
+    if(validation())
+    {
      var formData=new FormData();
      formData.append('restaurantname',restaurantName)
      formData.append('ownername',ownerName)
@@ -120,18 +135,34 @@ const handleLogo=(event)=>{
       formData.append('fileshopact',fileShopAct.bytes)
       formData.append('filelogo',fileLogo.bytes)
       formData.append('address',address)
-        formData.append('stateid',stateid)
-        formData.append('cityid',cityid)
-        var d=new Date();
-        var cd=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()
-        formData.append('createdat',cd)
-        formData.append('updatedat',cd)
+      formData.append('stateid',stateid)
+      formData.append('cityid',cityid)
+      var d=new Date();
+      var cd=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()
+      formData.append('createdat',cd)
+      formData.append('updatedat',cd)
      
-      
+         
         var result=await postData('restaurant/restaurant_submit',formData)
-        alert(result.status)
+        if(result.status)
+        {
+          Swal.fire({
+            icon:'success',
+            title:'Restaurant Registration',
+            text:result.message
+          })
+        }
+        else
+        {
+          Swal.fire({
+            icon:'error',
+            title:'Restaurant Registration',
+            text:result.message
+          })
+        }
 
   }
+}
  
 
 
@@ -150,10 +181,18 @@ const handleLogo=(event)=>{
             <Heading title="Restaurant Registration" />
           </Grid>
           <Grid  size={{xs:6}}>
-            <TextField label="Restaurant Name" fullWidth  onChange={(event)=>setRestaurantName(event.target.value)}/>
+            <TextField 
+            error={resError.error}
+            helperText={resError.message}
+            onFocus={()=>setResError({error:false,message:''})}
+            label="Restaurant Name" fullWidth  onChange={(event)=>setRestaurantName(event.target.value)}/>
           </Grid>
           <Grid  size={{xs:6}}>
-            <TextField label="Owner Name" fullWidth onChange={(event)=>setOwnerName(event.target.value)} />
+            <TextField 
+            error={resError.error}
+            helperText={resError.message}
+            onFocus={()=>setResError({error:false,message:''})}
+            label="Owner Name" fullWidth onChange={(event)=>setOwnerName(event.target.value)} />
           </Grid>
           <Grid size={{xs:4}}>
             <TextField label="Phone Number" fullWidth onChange={(event)=>setPhoneNumber(event.target.value)} />
